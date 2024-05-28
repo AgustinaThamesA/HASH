@@ -4,23 +4,19 @@
 
 # TDA HASH
 
-## Repositorio de (Nombre Apellido) - (Padrón) - (Mail)
+## Repositorio de Agustina Thames Alderete - 111287 - athames@fi.uba.ar
 
-- Para compilar:
+A la hora de correr el programa, yo utilicé la línea para compilar y la línea de ejecución con valgrind, ya que el makefile ya tenía incorporada una forma más eficiente de hacerlo.
+
+- Para ejecutar con valgrind usando mis pruebas:
 
 ```bash
-línea de compilación
+make valgrind-alumno
 ```
 
-- Para ejecutar:
-
+- Para ejecutar con valgrind usando el archivo de ejemplo dado por la cátedra:
 ```bash
-línea de ejecución
-```
-
-- Para ejecutar con valgrind:
-```bash
-línea con valgrind
+make 
 ```
 ---
 ##  Funcionamiento
@@ -57,4 +53,12 @@ vector_original = vector;
 ---
 
 ## Respuestas a las preguntas teóricas
-Incluír acá las respuestas a las preguntas del enunciado (si aplica).
+### 1. Qué es un diccionario - Explicá 3 formas diferentes de implementar un diccionario (tabla de hash cuenta como 1)
+
+#### Diccionario
+
+
+### 2. Qué es una función de hash y qué características debe tener
+
+
+### 3. Qué es una tabla de Hash y los diferentes métodos de resolución de colisiones vistos (encadenamiento, probing, etc)

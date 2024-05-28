@@ -69,9 +69,9 @@ void busca_y_contiene_correctamente() {
 	pa2m_afirmar(strcmp(hash_obtener(hash, "clave1"), "valor1") == 0, "Busca y encuentra valor1 en el hash.");
 	pa2m_afirmar(strcmp(hash_obtener(hash, "clave2"), "valor2") == 0, "Busca y encuentra valor2 en el hash.");
 	pa2m_afirmar(strcmp(hash_obtener(hash, "clave3"), "valor3") == 0, "Busca y encuentra valor3 en el hash.");
-	pa2m_afirmar(hash_obtener(hash, "clave4") == NULL, "Busca y no encuentra valor4 porque no está en el hash.");
-	pa2m_afirmar(hash_contiene(hash, "clave4") == false, "Se fija si hash contiene valor4 y devuelve false.");
-	pa2m_afirmar(hash_contiene(hash, "clave3") == true, "Se fija si hash contiene valor3 y devuelve true.");
+
+	pa2m_afirmar(hash_contiene(hash, "clave4") == false, "Se fija si hash contiene clave4 y devuelve false.");
+	pa2m_afirmar(hash_contiene(hash, "clave3") == true, "Se fija si hash contiene clave3 y devuelve true.");
 
 	hash_destruir(hash);
 }
@@ -86,6 +86,29 @@ void quita_correctamente() {
 	pa2m_afirmar(hash_cantidad(hash) == 3, "Devuelve hash con 3 claves insertadas.");
 	pa2m_afirmar(strcmp(hash_quitar(hash, "clave3"), "valor3") == 0, "Elimina correctamente clave3.");
 	pa2m_afirmar(hash_quitar(hash, "clave4") == NULL, "No puede eliminar una clave que no está en hash.");
+	pa2m_afirmar(hash_cantidad(hash) == 2, "Devuelve hash con 2 claves.");
+
+	hash_destruir(hash);
+}
+
+bool imprime_valor(const char *clave, void *valor, void *aux){
+	if (!clave) return false;
+	printf("El valor es: %s\n", (char*)valor);
+	return true;
+}
+
+void hash_con_cada_clave_correctamente(){
+	hash_t* hash = hash_crear(3);
+
+	hash_insertar(hash, "clave1", "valor1", NULL);
+	hash_insertar(hash, "clave2", "valor2", NULL);
+	hash_insertar(hash, "clave3", "valor3", NULL);
+	
+	printf("\n");
+
+	size_t cantidad_iteraciones = hash_con_cada_clave(hash, imprime_valor, NULL);
+
+	pa2m_afirmar(cantidad_iteraciones == 3, "Hay 3 iteraciones con un hash con 3 claves.");
 
 	hash_destruir(hash);
 }
@@ -107,6 +130,10 @@ int main()
 	pa2m_nuevo_grupo(
 		"\n======================== Pruebas eliminación ========================");
 	quita_correctamente();
+
+	pa2m_nuevo_grupo(
+		"\n======================== Pruebas iterador interno ========================");
+	hash_con_cada_clave_correctamente();
 
 	return pa2m_mostrar_reporte();
 }

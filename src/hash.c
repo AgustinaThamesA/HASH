@@ -1,8 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
-//#include "hash.h"
 #include "hash_estructura_privada.h"
 
 #define FACTOR_CARGA_MAXIMA 0.7
@@ -209,8 +209,23 @@ void hash_destruir_todo(hash_t *hash, void (*destructor)(void *)) {
 }
 
 size_t hash_con_cada_clave(hash_t *hash,
-			   bool (*f)(const char *clave, void *valor, void *aux),
-			   void *aux)
+                           bool (*f)(const char *clave, void *valor, void *aux),
+                           void *aux)
 {
-	return 0;
+	if (hash == NULL || hash->tabla == NULL || f == NULL) return 0;
+
+	size_t cantidad = 0;
+	bool detener = false;
+	for (size_t i = 0; i < hash_cantidad(hash) &&!detener; i++) {
+		tabla_t* tabla = buscar_en_tabla(hash, hash->tabla[i]->clave);
+		if (tabla!= NULL) {
+			if (f(tabla->clave, tabla->valor, aux)) {
+				cantidad++;
+			} else {
+				detener = true;
+			}
+		}
+	}
+
+	return cantidad;
 }
