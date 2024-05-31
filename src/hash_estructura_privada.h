@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef struct tabla tabla_t;
+typedef struct componente_tabla componente_tabla_t;
 
 /*
  * La función hash_function fue obtenida de Internet, y la acompañaba esta definición:
@@ -31,7 +31,7 @@ size_t hash_capacidad(hash_t *hash);
  * Devuelve un puntero al elemento asociado a la clave si se encuentra,
  * o NULL en caso de errores
  */
-tabla_t *buscar_en_tabla(hash_t *hash, const char *clave);
+componente_tabla_t *buscar_en_tabla(hash_t *hash, const char *clave);
 
 /*
  * Rehashea (redimensiona) la tabla de hash y redistribuye los elementos.
