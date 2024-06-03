@@ -66,14 +66,16 @@ componente_tabla_t *buscar_en_tabla(hash_t *hash, const char *clave)
 void rehash(hash_t *hash)
 {
 	size_t nueva_capacidad = hash->capacidad * 2;
-	componente_tabla_t **nueva_componente_tabla = calloc(nueva_capacidad, sizeof(componente_tabla_t *));
+	componente_tabla_t **nueva_componente_tabla =
+		calloc(nueva_capacidad, sizeof(componente_tabla_t *));
 
 	for (size_t i = 0; i < hash->capacidad; i++) {
-		componente_tabla_t *componente_tabla = hash->componente_tabla[i];
+		componente_tabla_t *componente_tabla =
+			hash->componente_tabla[i];
 		if (componente_tabla) {
-			size_t posicion =
-				hash_function(componente_tabla->clave, nueva_capacidad) %
-				nueva_capacidad;
+			size_t posicion = hash_function(componente_tabla->clave,
+							nueva_capacidad) %
+					  nueva_capacidad;
 			while (nueva_componente_tabla[posicion] != NULL) {
 				posicion = (posicion + 1) % nueva_capacidad;
 			}
@@ -101,7 +103,8 @@ hash_t *hash_crear(size_t capacidad)
 	hash->capacidad = cap;
 	hash->cantidad = 0;
 
-	hash->componente_tabla = calloc(hash->capacidad, sizeof(componente_tabla_t *));
+	hash->componente_tabla =
+		calloc(hash->capacidad, sizeof(componente_tabla_t *));
 	if (!hash->componente_tabla) {
 		free(hash);
 		return NULL;
@@ -115,9 +118,12 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 {
 	if (hash == NULL || hash->componente_tabla == NULL)
 		return NULL;
+
 	componente_tabla_t *componente_tabla = buscar_en_tabla(hash, clave);
 
 	if (componente_tabla) {
+		if (anterior != NULL)
+			*anterior = componente_tabla->valor;
 		componente_tabla->valor = elemento;
 		return hash;
 	}
@@ -133,7 +139,8 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 	while (hash->componente_tabla[posicion] != NULL)
 		posicion = (posicion + 1) % hash->capacidad;
 
-	componente_tabla_t *nueva_componente_tabla = calloc(1, sizeof(componente_tabla_t));
+	componente_tabla_t *nueva_componente_tabla =
+		calloc(1, sizeof(componente_tabla_t));
 	nueva_componente_tabla->clave = clave;
 	nueva_componente_tabla->valor = elemento;
 	nueva_componente_tabla->ocupado = true;
@@ -204,7 +211,8 @@ void hash_destruir(hash_t *hash)
 	if (hash == NULL)
 		return;
 	for (size_t i = 0; i < hash->capacidad; i++) {
-		componente_tabla_t *componente_tabla = hash->componente_tabla[i];
+		componente_tabla_t *componente_tabla =
+			hash->componente_tabla[i];
 		if (componente_tabla != NULL)
 			free(componente_tabla);
 	}
@@ -214,12 +222,19 @@ void hash_destruir(hash_t *hash)
 
 void hash_destruir_todo(hash_t *hash, void (*destructor)(void *))
 {
-	if (hash == NULL)
-		return;
+	if (hash == NULL) {
+		return; // No hacer nada si hash es nulo
+	}
+	if (destructor == NULL) {
+		return; // No hacer nada si destructor es nulo
+	}
 	for (size_t i = 0; i < hash->capacidad; i++) {
-		componente_tabla_t *componente_tabla = hash->componente_tabla[i];
+		componente_tabla_t *componente_tabla =
+			hash->componente_tabla[i];
 		if (componente_tabla != NULL) {
-			destructor(componente_tabla->valor);
+			destructor(
+				componente_tabla
+					->valor); // Llamar a destructor para cada elemento
 			free(componente_tabla);
 		}
 	}
@@ -237,9 +252,11 @@ size_t hash_con_cada_clave(hash_t *hash,
 	size_t cantidad = 0;
 	bool detener = false;
 	for (size_t i = 0; i < hash->capacidad && !detener; i++) {
-		componente_tabla_t *componente_tabla = hash->componente_tabla[i];
+		componente_tabla_t *componente_tabla =
+			hash->componente_tabla[i];
 		if (componente_tabla != NULL && componente_tabla->ocupado) {
-			if (f(componente_tabla->clave, componente_tabla->valor, aux)) {
+			if (f(componente_tabla->clave, componente_tabla->valor,
+			      aux)) {
 				cantidad++;
 			} else {
 				detener = true;
