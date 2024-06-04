@@ -16,13 +16,13 @@ struct componente_tabla {
 
 struct hash {
 	size_t capacidad;
-	size_t cantidad;
+	size_t tamaño;
 	componente_tabla_t **componente_tabla;
 };
 
 // ================== FUNCIONES AUXILIARES ====================
 
-size_t hash_function(const char *clave, size_t tamanio)
+size_t hash_function(const char *clave, size_t tamaño)
 {
 	size_t hash = 0;
 	while (*clave) {
@@ -31,7 +31,17 @@ size_t hash_function(const char *clave, size_t tamanio)
 		clave++;
 	}
 	return hash %
-	       tamanio; // Tomamos el módulo con el tamaño de la componente_tabla para obtener un índice válido
+	       tamaño; // Tomamos el módulo con el tamaño de la componente_tabla para obtener un índice válido
+}
+
+size_t funcion_de_hash(hash_t *hash, const char *clave){
+	size_t valor = 0;
+	size_t largo_clave = strlen(clave);
+	for (size_t i = 0; i < largo_clave; i++){
+		valor = (valor*100)+(valor/7)+(size_t)clave[i];
+	}
+
+	return valor % hash->capacidad;
 }
 
 size_t hash_capacidad(hash_t *hash)
@@ -43,7 +53,7 @@ size_t hash_capacidad(hash_t *hash)
 
 componente_tabla_t *buscar_en_tabla(hash_t *hash, const char *clave)
 {
-	size_t posicion = hash_function(clave, hash->capacidad);
+	size_t posicion = funcion_de_hash(hash, clave);
 	size_t inicio = posicion;
 
 	while (true) {
@@ -73,8 +83,7 @@ void rehash(hash_t *hash)
 		componente_tabla_t *componente_tabla =
 			hash->componente_tabla[i];
 		if (componente_tabla) {
-			size_t posicion = hash_function(componente_tabla->clave,
-							nueva_capacidad) %
+			size_t posicion = funcion_de_hash(hash, componente_tabla->clave) %
 					  nueva_capacidad;
 			while (nueva_componente_tabla[posicion] != NULL) {
 				posicion = (posicion + 1) % nueva_capacidad;
@@ -83,6 +92,28 @@ void rehash(hash_t *hash)
 		}
 	}
 
+	free(hash->componente_tabla);
+	hash->componente_tabla = nueva_componente_tabla;
+	hash->capacidad = nueva_capacidad;
+}
+
+
+void rehash2(hash_t *hash){
+	size_t nueva_capacidad = hash->capacidad * 2;
+	componente_tabla_t **nueva_componente_tabla = calloc(nueva_capacidad, sizeof(componente_tabla_t*));
+	for (size_t i = 0; i < nueva_capacidad; i++){
+		nueva_componente_tabla[i] = NULL;
+	}
+	for (size_t i = 0; i < hash->capacidad; i++){
+		componente_tabla_t *componente_tabla = hash->componente_tabla[i];
+		if (componente_tabla){
+			size_t posicion = funcion_de_hash(hash, componente_tabla->clave) % nueva_capacidad;
+			while (nueva_componente_tabla[posicion] != NULL){
+				posicion = (posicion+1)%nueva_capacidad;
+			}
+			nueva_componente_tabla[posicion] = componente_tabla;
+		}
+	}
 	free(hash->componente_tabla);
 	hash->componente_tabla = nueva_componente_tabla;
 	hash->capacidad = nueva_capacidad;
@@ -101,7 +132,7 @@ hash_t *hash_crear(size_t capacidad)
 		cap = CAPACIDAD_MINIMA;
 
 	hash->capacidad = cap;
-	hash->cantidad = 0;
+	hash->tamaño = 0;
 
 	hash->componente_tabla =
 		calloc(hash->capacidad, sizeof(componente_tabla_t *));
@@ -116,7 +147,7 @@ hash_t *hash_crear(size_t capacidad)
 hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 		      void **anterior)
 {
-	if (hash == NULL || hash->componente_tabla == NULL)
+	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL)
 		return NULL;
 
 	componente_tabla_t *componente_tabla = buscar_en_tabla(hash, clave);
@@ -128,13 +159,13 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 		return hash;
 	}
 
-	float factor_carga = (float)hash->cantidad / (float)hash->capacidad;
+	float factor_carga = (float)hash->tamaño / (float)hash->capacidad;
 
 	if (factor_carga > FACTOR_CARGA_MAXIMA)
-		rehash(hash);
+		rehash2(hash);
 
 	size_t posicion =
-		hash_function(clave, hash->capacidad) % hash->capacidad;
+		funcion_de_hash(hash, clave) % hash->capacidad;
 
 	while (hash->componente_tabla[posicion] != NULL)
 		posicion = (posicion + 1) % hash->capacidad;
@@ -145,7 +176,7 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 	nueva_componente_tabla->valor = elemento;
 	nueva_componente_tabla->ocupado = true;
 	hash->componente_tabla[posicion] = nueva_componente_tabla;
-	hash->cantidad++;
+	hash->tamaño++;
 	return hash;
 }
 
@@ -154,7 +185,7 @@ void *hash_quitar(hash_t *hash, const char *clave)
 	if (hash == NULL || hash->componente_tabla == NULL)
 		return NULL;
 
-	size_t posicion = hash_function(clave, hash->capacidad);
+	size_t posicion = funcion_de_hash(hash, clave);
 	size_t inicio = posicion;
 
 	while (true) {
@@ -164,7 +195,7 @@ void *hash_quitar(hash_t *hash, const char *clave)
 				void *valor_anterior = actual->valor;
 				free(actual);
 				hash->componente_tabla[posicion] = NULL;
-				hash->cantidad--;
+				hash->tamaño--;
 				return valor_anterior;
 			}
 			posicion = (posicion + 1) % hash->capacidad;
@@ -183,9 +214,12 @@ void *hash_obtener(hash_t *hash, const char *clave)
 {
 	if (hash == NULL || hash->componente_tabla == NULL)
 		return NULL;
-	componente_tabla_t *componente_tabla = buscar_en_tabla(hash, clave);
-	if (componente_tabla)
-		return componente_tabla->valor;
+	size_t posicion = funcion_de_hash(hash, clave);
+	while (hash->componente_tabla[posicion] != NULL){
+		if (strcmp(hash->componente_tabla[posicion]->clave, clave) == 0)
+			return hash->componente_tabla[posicion]->valor;
+		posicion = (posicion+1)%hash->capacidad;
+	}
 	return NULL;
 }
 
@@ -203,7 +237,7 @@ size_t hash_cantidad(hash_t *hash)
 {
 	if (hash == NULL)
 		return 0;
-	return hash->cantidad;
+	return hash->tamaño;
 }
 
 void hash_destruir(hash_t *hash)
@@ -249,7 +283,7 @@ size_t hash_con_cada_clave(hash_t *hash,
 	if (hash == NULL || hash->componente_tabla == NULL || f == NULL)
 		return 0;
 
-	size_t cantidad = 0;
+	size_t tamaño = 0;
 	bool detener = false;
 	for (size_t i = 0; i < hash->capacidad && !detener; i++) {
 		componente_tabla_t *componente_tabla =
@@ -257,12 +291,12 @@ size_t hash_con_cada_clave(hash_t *hash,
 		if (componente_tabla != NULL && componente_tabla->ocupado) {
 			if (f(componente_tabla->clave, componente_tabla->valor,
 			      aux)) {
-				cantidad++;
+				tamaño++;
 			} else {
 				detener = true;
 			}
 		}
 	}
 
-	return cantidad;
+	return tamaño;
 }

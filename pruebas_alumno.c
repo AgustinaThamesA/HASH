@@ -131,6 +131,16 @@ void prueba_quitar_claves_y_verificar_eliminacion()
 	pa2m_afirmar(hash_cantidad(hash) == 2,
 		     "Quitar clave3 reduce la cantidad a 2.");
 
+	pa2m_afirmar(strcmp(hash_quitar(hash, "clave2"), "valor2") == 0,
+		     "Quitar clave2 devuelve valor2.");
+	pa2m_afirmar(hash_cantidad(hash) == 1,
+		     "Quitar clave2 reduce la cantidad a 1.");
+
+	pa2m_afirmar(strcmp(hash_quitar(hash, "clave1"), "valor1") == 0,
+		     "Quitar clave1 devuelve valor1.");
+	pa2m_afirmar(hash_cantidad(hash) == 0,
+		     "Quitar clave1 reduce la cantidad a 0.");
+
 	hash_destruir(hash);
 }
 
@@ -165,6 +175,9 @@ void prueba_iterador_interno_recorre_todas_las_claves()
 	pa2m_afirmar(
 		cantidad_iteraciones == 10,
 		"Iterador interno realiza 10 iteraciones en hash con 10 claves.");
+	pa2m_afirmar(
+		hash_cantidad(hash) == 10,
+		"Hash con 10 claves.");
 
 	hash_destruir(hash);
 }
@@ -198,6 +211,17 @@ void prueba_destruir_todo_con_funcion_de_destruccion()
 	hash_destruir_todo(hash, destruir_string);
 }
 
+void prueba_insertar_clave_NULL(){
+	hash_t *hash = hash_crear(10);
+
+	hash_insertar(hash, NULL, "valor1", NULL);
+
+	pa2m_afirmar(hash_cantidad(hash) == 0, "No se puede insertar una clave NULL");
+	
+
+	hash_destruir(hash);
+}
+
 int main()
 {
 	pa2m_nuevo_grupo(
@@ -223,6 +247,10 @@ int main()
 	pa2m_nuevo_grupo(
 		"\n=========== Pruebas de destrucción completa ===========");
 	prueba_destruir_todo_con_funcion_de_destruccion();
+
+	pa2m_nuevo_grupo(
+		"\n=========== Pruebas de NULLs ===========");
+	prueba_insertar_clave_NULL();
 
 	return pa2m_mostrar_reporte();
 }
