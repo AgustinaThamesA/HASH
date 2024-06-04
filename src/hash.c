@@ -182,7 +182,7 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 
 void *hash_quitar(hash_t *hash, const char *clave)
 {
-	if (hash == NULL || hash->componente_tabla == NULL)
+	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL)
 		return NULL;
 
 	size_t posicion = funcion_de_hash(hash, clave);
@@ -212,7 +212,7 @@ void *hash_quitar(hash_t *hash, const char *clave)
 
 void *hash_obtener(hash_t *hash, const char *clave)
 {
-	if (hash == NULL || hash->componente_tabla == NULL)
+	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL)
 		return NULL;
 	size_t posicion = funcion_de_hash(hash, clave);
 	while (hash->componente_tabla[posicion] != NULL){
@@ -225,7 +225,7 @@ void *hash_obtener(hash_t *hash, const char *clave)
 
 bool hash_contiene(hash_t *hash, const char *clave)
 {
-	if (hash == NULL || hash->componente_tabla == NULL)
+	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL)
 		return false;
 	componente_tabla_t *componente_tabla = buscar_en_tabla(hash, clave);
 	if (componente_tabla)
