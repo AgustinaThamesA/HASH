@@ -175,9 +175,7 @@ void prueba_iterador_interno_recorre_todas_las_claves()
 	pa2m_afirmar(
 		cantidad_iteraciones == 10,
 		"Iterador interno realiza 10 iteraciones en hash con 10 claves.");
-	pa2m_afirmar(
-		hash_cantidad(hash) == 10,
-		"Hash con 10 claves.");
+	pa2m_afirmar(hash_cantidad(hash) == 10, "Hash con 10 claves.");
 
 	hash_destruir(hash);
 }
@@ -187,37 +185,41 @@ void destruir_string(void *elemento)
 	if (!elemento)
 		return;
 
-	printf("(Destructor) Libero el valor: %s\n", (char *)elemento);
+	printf("(Destructor) Libero el vehiculo: %s\n", (char *)elemento);
 	free(elemento);
 }
 
 void prueba_destruir_todo_con_funcion_de_destruccion()
 {
-	hash_t *hash = hash_crear(10);
+	hash_t *hash = hash_crear(3);
 
-	hash_insertar(hash, "clave1", "valor1", NULL);
-	hash_insertar(hash, "clave2", "valor2", NULL);
-	hash_insertar(hash, "clave3", "valor3", NULL);
-	hash_insertar(hash, "clave4", "valor4", NULL);
-	hash_insertar(hash, "clave5", "valor5", NULL);
-	hash_insertar(hash, "clave6", "valor6", NULL);
-	hash_insertar(hash, "clave7", "valor7", NULL);
-	hash_insertar(hash, "clave8", "valor8", NULL);
-	hash_insertar(hash, "clave9", "valor9", NULL);
-	hash_insertar(hash, "clave10", "valor10", NULL);
+	char** valor1 = malloc(sizeof(char*));
+	char** valor2 = malloc(sizeof(char*));
+	char** valor3 = malloc(sizeof(char*));
+
+	*valor1 = "valor1";
+	*valor2 = "valor2";
+	*valor3 = "valor3";
+
+	hash_insertar(hash, "clave1", *valor1, NULL);
+	hash_insertar(hash, "clave2", *valor2, NULL);
+	hash_insertar(hash, "clave3", *valor3, NULL);
 
 	printf("\n");
+
+	pa2m_afirmar(hash_cantidad(hash) == 3, "Hash de 3 valores en el heap.");
 
 	hash_destruir_todo(hash, destruir_string);
 }
 
-void prueba_insertar_clave_NULL(){
+void prueba_insertar_clave_NULL()
+{
 	hash_t *hash = hash_crear(10);
 
 	hash_insertar(hash, NULL, "valor1", NULL);
 
-	pa2m_afirmar(hash_cantidad(hash) == 0, "No se puede insertar una clave NULL");
-	
+	pa2m_afirmar(hash_cantidad(hash) == 0,
+		     "No se puede insertar una clave NULL");
 
 	hash_destruir(hash);
 }
@@ -248,8 +250,7 @@ int main()
 		"\n=========== Pruebas de destrucción completa ===========");
 	prueba_destruir_todo_con_funcion_de_destruccion();
 
-	pa2m_nuevo_grupo(
-		"\n=========== Pruebas de NULLs ===========");
+	pa2m_nuevo_grupo("\n=========== Pruebas de NULLs ===========");
 	prueba_insertar_clave_NULL();
 
 	return pa2m_mostrar_reporte();
