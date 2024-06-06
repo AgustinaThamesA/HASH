@@ -21,7 +21,6 @@ size_t funcion_de_hash(hash_t *hash, const char *clave){
 }
 */
 
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,13 +57,14 @@ size_t hash_function(const char *clave, size_t tamanio)
 	       tamanio; // Tomamos el módulo con el tamaño de la componente_tabla para obtener un índice válido
 }
 
-size_t funcion_de_hash(hash_t *hash, const char *clave){
+size_t funcion_de_hash(hash_t *hash, const char *clave)
+{
 	size_t valor = 5381;
 	size_t largo_clave = strlen(clave);
 
 	for (size_t i = 0; i < largo_clave; i++)
 		valor = ((valor << 5) + valor) + (size_t)clave[i];
-	
+
 	return valor % hash->capacidad;
 }
 
@@ -127,12 +127,14 @@ void rehash(hash_t *hash)
 hash_t *hash_crear(size_t capacidad)
 {
 	hash_t *hash = calloc(1, sizeof(hash_t));
-	if (!hash)
+	if (!hash) {
 		return NULL;
+	}
 
 	size_t cap = capacidad;
-	if (cap < 3)
+	if (cap < 3) {
 		cap = CAPACIDAD_MINIMA;
+	}
 
 	hash->capacidad = cap;
 	hash->cantidad = 0;
@@ -150,31 +152,39 @@ hash_t *hash_crear(size_t capacidad)
 hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 		      void **anterior)
 {
-	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL)
+	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL) {
 		return NULL;
+	}
 
 	componente_tabla_t *componente_tabla = buscar_en_tabla(hash, clave);
 
 	if (componente_tabla) {
-		if (anterior != NULL)
+		if (anterior != NULL) {
 			*anterior = componente_tabla->valor;
+		}
 		componente_tabla->valor = elemento;
 		return hash;
 	}
 
 	float factor_carga = (float)hash->cantidad / (float)hash->capacidad;
 
-	if (factor_carga > FACTOR_CARGA_MAXIMA)
+	if (factor_carga > FACTOR_CARGA_MAXIMA) {
 		rehash(hash);
+	}
 
 	size_t posicion =
 		hash_function(clave, hash->capacidad) % hash->capacidad;
 
-	while (hash->componente_tabla[posicion] != NULL)
+	while (hash->componente_tabla[posicion] != NULL) {
 		posicion = (posicion + 1) % hash->capacidad;
+	}
 
 	componente_tabla_t *nueva_componente_tabla =
 		calloc(1, sizeof(componente_tabla_t));
+	if (!nueva_componente_tabla) {
+		return NULL;
+	}
+
 	nueva_componente_tabla->clave = clave;
 	nueva_componente_tabla->valor = elemento;
 	nueva_componente_tabla->ocupado = true;
@@ -254,24 +264,26 @@ void hash_destruir(hash_t *hash)
 	free(hash);
 }
 
-void hash_destruir_todo(hash_t *hash, void (*destructor)(void *)) {
-    if (hash == NULL) {
-        return;
-    }
-    if (destructor == NULL) {
-        return;
-    }
-    for (size_t i = 0; i < hash->capacidad; i++) {
-        componente_tabla_t *componente_tabla = hash->componente_tabla[i];
-        if (componente_tabla != NULL) {
-            if (componente_tabla->valor != NULL) {
-                destructor(componente_tabla->valor);
-            }
-            free(componente_tabla);
-        }
-    }
-    free(hash->componente_tabla);
-    free(hash);
+void hash_destruir_todo(hash_t *hash, void (*destructor)(void *))
+{
+	if (hash == NULL) {
+		return;
+	}
+	if (destructor == NULL) {
+		return;
+	}
+	for (size_t i = 0; i < hash->capacidad; i++) {
+		componente_tabla_t *componente_tabla =
+			hash->componente_tabla[i];
+		if (componente_tabla != NULL) {
+			if (componente_tabla->valor != NULL) {
+				destructor(componente_tabla->valor);
+			}
+			free(componente_tabla);
+		}
+	}
+	free(hash->componente_tabla);
+	free(hash);
 }
 
 size_t hash_con_cada_clave(hash_t *hash,
@@ -287,11 +299,14 @@ size_t hash_con_cada_clave(hash_t *hash,
 		componente_tabla_t *componente_tabla =
 			hash->componente_tabla[i];
 		if (componente_tabla != NULL && componente_tabla->ocupado) {
-			if (f(componente_tabla->clave, componente_tabla->valor,
-			      aux)) {
-				cantidad++;
-			} else {
-				detener = true;
+			if (componente_tabla->clave != NULL &&
+			    componente_tabla->valor != NULL) {
+				if (f(componente_tabla->clave,
+				      componente_tabla->valor, aux)) {
+					cantidad++;
+				} else {
+					detener = true;
+				}
 			}
 		}
 	}

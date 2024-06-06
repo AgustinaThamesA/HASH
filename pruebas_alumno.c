@@ -193,9 +193,9 @@ void prueba_destruir_todo_con_funcion_de_destruccion()
 {
 	hash_t *hash = hash_crear(3);
 
-	char** valor1 = malloc(sizeof(char*));
-	char** valor2 = malloc(sizeof(char*));
-	char** valor3 = malloc(sizeof(char*));
+	char **valor1 = malloc(sizeof(char *));
+	char **valor2 = malloc(sizeof(char *));
+	char **valor3 = malloc(sizeof(char *));
 
 	*valor1 = "valor1";
 	*valor2 = "valor2";
@@ -210,6 +210,7 @@ void prueba_destruir_todo_con_funcion_de_destruccion()
 	pa2m_afirmar(hash_cantidad(hash) == 3, "Hash de 3 valores en el heap.");
 
 	hash_destruir_todo(hash, destruir_string);
+	pa2m_afirmar(hash == NULL, "Hash destruído.");
 }
 
 void prueba_insertar_clave_NULL()
@@ -220,6 +221,41 @@ void prueba_insertar_clave_NULL()
 
 	pa2m_afirmar(hash_cantidad(hash) == 0,
 		     "No se puede insertar una clave NULL");
+
+	hash_destruir(hash);
+}
+
+void pruebas_eliminacion_chanu()
+{
+	hash_t *hash = hash_crear(10);
+
+	hash_insertar(hash, "1", "A", NULL);
+	pa2m_afirmar(hash_cantidad(hash) == 1, "Insertar 1 y A.");
+	hash_insertar(hash, "1", "A", NULL);
+	pa2m_afirmar(hash_cantidad(hash) == 1, "Insertar 1 y A.");
+
+	pa2m_afirmar(strcmp(hash_quitar(hash, "1"), "A") == 0,
+		     "Elimino la clave 1, devuelve el elemento.");
+	pa2m_afirmar(hash_quitar(hash, "1") == NULL,
+		     "Elimino la clave 1 otra vez, devuelve error.");
+
+	pa2m_afirmar(hash_cantidad(hash) == 0, "El tamaño de hash es 0.");
+
+	hash_insertar(hash, "1", "B", NULL);
+	pa2m_afirmar(hash_cantidad(hash) == 1, "Insertar 1 y B.");
+
+	pa2m_afirmar(strcmp(hash_obtener(hash, "1"), "B") == 0,
+		     "Obtengo la clave 1 y devuelve B.");
+	hash_insertar(hash, "4", "A", NULL);
+	pa2m_afirmar(hash_cantidad(hash) == 2,
+		     "Insertar 4 y A || el tamaño del hash es 2.");
+
+	pa2m_afirmar(strcmp(hash_quitar(hash, "1"), "B") == 0,
+		     "Elimino la clave 1, devuelve el elemento B.");
+	pa2m_afirmar(strcmp(hash_quitar(hash, "4"), "A") == 0,
+		     "Elimino la clave 4, devuelve el elemento A.");
+
+	pa2m_afirmar(hash_cantidad(hash) == 0, "El tamaño de hash es 0.");
 
 	hash_destruir(hash);
 }
@@ -250,8 +286,9 @@ int main()
 		"\n=========== Pruebas de destrucción completa ===========");
 	prueba_destruir_todo_con_funcion_de_destruccion();
 
-	pa2m_nuevo_grupo("\n=========== Pruebas de NULLs ===========");
+	pa2m_nuevo_grupo("\n=========== Pruebas de chanu ===========");
 	prueba_insertar_clave_NULL();
+	pruebas_eliminacion_chanu();
 
 	return pa2m_mostrar_reporte();
 }
