@@ -74,9 +74,9 @@ void rehash(hash_t *hash)
 		if (componente_tabla) {
 			size_t posicion =
 				hash_function(componente_tabla->clave) %
-				hash->capacidad;
+				nueva_capacidad;
 			while (nueva_componente_tabla[posicion] != NULL) {
-				posicion = (posicion + 1) % hash->capacidad;
+				posicion = (posicion + 1) % nueva_capacidad;
 			}
 			nueva_componente_tabla[posicion] = componente_tabla;
 		}
