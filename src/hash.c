@@ -22,14 +22,14 @@ struct hash {
 
 // ================== FUNCIONES AUXILIARES ====================
 
-size_t hash_function(const char *clave, size_t tamanio)
+size_t hash_function(const char *clave)
 {
 	size_t hash = 0;
 	while (*clave) {
 		hash = ((hash << 5) + (unsigned char)(*clave));
 		clave++;
 	}
-	return hash % tamanio;
+	return hash;
 }
 
 size_t hash_capacidad(hash_t *hash)
@@ -41,7 +41,7 @@ size_t hash_capacidad(hash_t *hash)
 
 componente_tabla_t *buscar_en_tabla(hash_t *hash, const char *clave)
 {
-	size_t posicion = hash_function(clave, hash->capacidad);
+	size_t posicion = hash_function(clave) % hash->capacidad;
 	size_t inicio = posicion;
 
 	while (true) {
@@ -72,8 +72,9 @@ void rehash(hash_t *hash)
 		componente_tabla_t *componente_tabla =
 			hash->componente_tabla[i];
 		if (componente_tabla) {
-			size_t posicion = hash_function(componente_tabla->clave,
-							nueva_capacidad);
+			size_t posicion =
+				hash_function(componente_tabla->clave) %
+				hash->capacidad;
 			while (nueva_componente_tabla[posicion] != NULL) {
 				posicion = (posicion + 1) % nueva_capacidad;
 			}
@@ -143,8 +144,7 @@ hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
 		rehash(hash);
 	}
 
-	size_t posicion =
-		hash_function(clave, hash->capacidad) % hash->capacidad;
+	size_t posicion = hash_function(clave) % hash->capacidad;
 
 	while (hash->componente_tabla[posicion] != NULL &&
 	       hash->componente_tabla[posicion]->ocupado) {
@@ -177,7 +177,7 @@ void *hash_quitar(hash_t *hash, const char *clave)
 	if (hash == NULL || hash->componente_tabla == NULL || clave == NULL)
 		return NULL;
 
-	size_t posicion = hash_function(clave, hash->capacidad);
+	size_t posicion = hash_function(clave) % hash->capacidad;
 	size_t inicio = posicion;
 
 	while (true) {

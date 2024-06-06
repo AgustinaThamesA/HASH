@@ -18,7 +18,7 @@ typedef struct componente_tabla componente_tabla_t;
  *
  * Devuelve el índice calculado, o 0 en caso de errores
 */
-size_t hash_function(const char *clave, size_t tamanio);
+size_t hash_function(const char *clave);
 
 /*
  * Devuelve la capacidad actual de la tabla de hash, o 0 en caso de errores
