@@ -189,28 +189,32 @@ void destruir_string(void *elemento)
 	free(elemento);
 }
 
+void incrementar(void *elemento)
+{
+	int *v = elemento;
+	(*v)++;
+}
+
 void prueba_destruir_todo_con_funcion_de_destruccion()
 {
 	hash_t *hash = hash_crear(3);
+	int v1 = 0;
+	int v2 = 5;
+	int v3 = 10;
 
-	char **valor1 = malloc(sizeof(char *));
-	char **valor2 = malloc(sizeof(char *));
-	char **valor3 = malloc(sizeof(char *));
-
-	*valor1 = "valor1";
-	*valor2 = "valor2";
-	*valor3 = "valor3";
-
-	hash_insertar(hash, "clave1", *valor1, NULL);
-	hash_insertar(hash, "clave2", *valor2, NULL);
-	hash_insertar(hash, "clave3", *valor3, NULL);
+	hash_insertar(hash, "clave1", &v1, NULL);
+	hash_insertar(hash, "clave2", &v2, NULL);
+	hash_insertar(hash, "clave3", &v3, NULL);
 
 	printf("\n");
 
 	pa2m_afirmar(hash_cantidad(hash) == 3, "Hash de 3 valores en el heap.");
 
-	hash_destruir_todo(hash, destruir_string);
-	pa2m_afirmar(hash == NULL, "Hash destruído.");
+	hash_destruir_todo(hash, incrementar);
+
+	pa2m_afirmar(v1 != 0, "Hash destruído.");
+	pa2m_afirmar(v2 != 5, "Hash destruído.");
+	pa2m_afirmar(v3 != 10, "Hash destruído.");
 }
 
 void prueba_insertar_clave_NULL()
