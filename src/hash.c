@@ -87,6 +87,13 @@ void rehash(hash_t *hash)
 	hash->capacidad = nueva_capacidad;
 }
 
+char *strdup2(const char *s)
+{
+	char *s2 = malloc(strlen(s) + 1);
+	strcpy(s2, s);
+	return s2;
+}
+
 // ================== FUNCIONES ORIGINALES ====================
 
 hash_t *hash_crear(size_t capacidad)
@@ -112,13 +119,6 @@ hash_t *hash_crear(size_t capacidad)
 	}
 
 	return hash;
-}
-
-char *strdup2(const char *s)
-{
-	char *s2 = malloc(strlen(s) + 1);
-	strcpy(s2, s);
-	return s2;
 }
 
 hash_t *hash_insertar(hash_t *hash, const char *clave, void *elemento,
